@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Pollos Hermanos - Pesan Online</title>
+    
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rye&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pollos-red': '#D52B1E',
+                        'pollos-yellow': '#FFC72C',
+                        'pollos-dark': '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Rye', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .animate-slide-in {
+            animation: slideIn 0.3s forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased font-sans flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-pollos-yellow text-pollos-red p-2 rounded-full w-10 h-10 flex items-center justify-center text-xl">
+                    <img src="images/los-pollos-hermanos-seeklogo.png" alt="Los Pollos Hermanos Logo" width="50" height="50">
+                </div>
+                <h1 class="font-display text-xl sm:text-2xl text-pollos-red tracking-wider">Los Pollos Hermanos</h1>
+            </div>
+            
+            <!-- Tombol Keranjang -->
+            <button onclick="toggleCart()" class="relative bg-pollos-red hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition flex items-center gap-2">
+                <i class="fa-solid fa-shopping-cart"></i>
+                <span class="hidden sm:inline">Keranjang</span>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-pollos-yellow text-pollos-dark text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center border-2 border-white hidden transition-transform duration-200">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="bg-pollos-yellow text-pollos-dark py-12 px-4 text-center">
+        <div class="container mx-auto max-w-3xl">
+            <h2 class="text-3xl md:text-5xl font-display text-pollos-red mb-4">Pesan & Antar</h2>
+            <p class="text-lg md:text-xl font-medium">Rasa autentik ayam goreng New Mexico, kini bisa dipesan langsung melalui WhatsApp.</p>
+        </div>
+    </section>
+
+    <!-- Daftar Produk -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="flex items-center gap-3 mb-8">
+            <i class="fa-solid fa-fire text-2xl text-pollos-red"></i>
+            <h3 class="text-2xl font-bold text-pollos-dark">Menu Pilihan</h3>
+        </div>
+
+        <!-- Grid Produk (diisi oleh JS) -->
+        <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Isi produk dimuat via JavaScript -->
+        </div>
+    </main>
+
+    <!-- Sidebar Keranjang -->
+    <div id="cart-sidebar" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-end transition-opacity">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-in">
+            <!-- Header Keranjang -->
+            <div class="bg-pollos-red text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold"><i class="fa-solid fa-receipt mr-2"></i> Pesanan Anda</h3>
+                <button onclick="toggleCart()" class="text-white hover:text-gray-200 text-2xl font-bold">&times;</button>
+            </div>
+
+            <!-- Item Keranjang -->
+            <div class="flex-grow overflow-y-auto p-6 flex flex-col gap-4">
+                <div class="text-center text-gray-400 mt-10" id="empty-cart-msg">
+                    <i class="fa-solid fa-basket-shopping text-5xl mb-4"></i>
+                    <p>Keranjang belanja masih kosong.</p>
+                </div>
+                <div id="cart-items" class="flex flex-col gap-4"></div>
+            </div>
+
+            <!-- Footer Keranjang (Checkout) -->
+            <div class="border-t border-gray-200 p-6 bg-gray-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-bold text-gray-600">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-pollos-red">Rp 0</span>
+                </div>
+                <button onclick="checkoutWhatsApp()" id="checkout-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Pesan via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer & Info Kelompok -->
+    <footer class="bg-pollos-dark text-white py-10 mt-auto border-t-4 border-pollos-yellow">
+        <div class="container mx-auto px-4">
+            <!-- Info Tugas -->
+            <div class="max-w-3xl mx-auto bg-gray-800 border border-gray-700 rounded-xl p-6 mb-8 shadow-lg">
+                <div class="flex items-center gap-3 mb-4 border-b border-gray-600 pb-3">
+                    <i class="fa-solid fa-laptop-code text-pollos-yellow text-2xl"></i>
+                    <div>
+                        <h4 class="font-bold text-lg text-white">Project UAS B - Website E-Commerce</h4>
+                        <p class="text-sm text-gray-400">Tugas Pembuatan Marketplace Sederhana</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="inline-block bg-pollos-yellow text-pollos-dark font-bold px-3 py-1 rounded text-sm mb-3">Kelompok: Rawr</span>
+                    <ul class="text-gray-300 space-y-2 text-sm sm:text-base grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <li class="flex items-center"><i class="fa-solid fa-caret-right text-pollos-red mr-2"></i> Rizky Aulia Nasution | MB-4D | 2405171040</li>
+                        <li class="flex items-center"><i class="fa-solid fa-caret-right text-pollos-red mr-2"></i> Arfafillah Aqsha | MB-4D | 2405171060</li>
+                        <li class="flex items-center"><i class="fa-solid fa-caret-right text-pollos-red mr-2"></i> Marcel J. L. | MB-4D | 2405171056</li>
+                        <li class="flex items-center"><i class="fa-solid fa-caret-right text-pollos-red mr-2"></i> Galih Nouval P. | MB-4D | 2405171072</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="text-center">
+                <h2 class="font-display text-2xl text-pollos-yellow mb-2 opacity-80">Los Pollos Hermanos</h2>
+                <p class="text-sm text-gray-500">© 2026. Fictional Marketplace Project.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logika E-Commerce -->
+    <script>
+        // 1. Data Produk (Katalog)
+        const products = [
+            { id: 1, name: "Paket Signature (1 Ayam)", price: 35000, desc: "1 Ayam Goreng Original, Nasi, dan Es Teh.", img: "images/signature.png" },
+            { id: 2, name: "Paket Puas (2 Ayam)", price: 55000, desc: "2 Ayam Goreng Original, Nasi, dan Es Teh.", img: "images/puas.png" },
+            { id: 3, name: "Los Pollos Burger", price: 40000, desc: "Burger ayam renyah dengan keju lumer.", img: "images/lphburger.png" },
+            { id: 4, name: "Spicy Tenders (5 Pcs)", price: 30000, desc: "Potongan ayam tanpa tulang dengan bumbu pedas.", img: "images/spicytenders.png" },
+            { id: 5, name: "French Fries", price: 20000, desc: "Kentang goreng renyah ukuran Large.", img: "images/fries.png" },
+            { id: 6, name: "Coca-Cola", desc: "Minuman soda klasik yang menyegarkan.", img: "images/coke.png", sizes: [{name: "Small", price: 10000}, {name: "Medium", price: 14000}, {name: "Large", price: 18000}] },
+            { id: 7, name: "Diet Coke", desc: "Bebas gula, bebas kalori, rasa mantap.", img: "images/dietcoke.png", sizes: [{name: "Small", price: 12000}, {name: "Medium", price: 16000}, {name: "Large", price: 20000}] },
+            { id: 8, name: "Sprite", desc: "Sensasi lemon-lime yang jernih dan segar.", img: "images/sprite.png", sizes: [{name: "Small", price: 10000}, {name: "Medium", price: 14000}, {name: "Large", price: 18000}] }
+        ];
+
+        // 2. Variabel State
+        let cart = [];
+        let selectedSizes = {}; // Menyimpan status ukuran terpilih untuk setiap minuman
+
+        // 3. Fungsi Format Uang
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        };
+
+        // 4. Render HTML Produk ke Layar
+        function renderProducts() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = ''; 
+
+            products.forEach(product => {
+                let priceHtml = '';
+                let selectHtml = '';
+
+                // Cek apakah produk memiliki opsi ukuran
+                if (product.sizes) {
+                    // Set default ukuran ke index 0 (Small)
+                    if (selectedSizes[product.id] === undefined) {
+                        selectedSizes[product.id] = 0; 
+                    }
+
+                    priceHtml = `<span class="font-bold text-pollos-red text-sm sm:text-base" id="price-display-${product.id}">${formatRupiah(product.sizes[selectedSizes[product.id]].price)}</span>`;
+                    
+                    // Render Tombol Ikon Ukuran (S, M, L)
+                    let buttonsHtml = product.sizes.map((s, index) => {
+                        const isActive = selectedSizes[product.id] === index;
+                        const activeClasses = isActive 
+                            ? 'bg-pollos-red text-white border-pollos-red shadow-md' 
+                            : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50';
+                        
+                        // Menentukan label inisial (S, M, L) dan ukuran ikon
+                        let iconSize = 'text-xs';
+                        let label = 'S';
+                        if (s.name === 'Medium') { iconSize = 'text-sm'; label = 'M'; }
+                        if (s.name === 'Large') { iconSize = 'text-base'; label = 'L'; }
+
+                        return `
+                        <button onclick="selectSize(${product.id}, ${index})" id="btn-size-${product.id}-${index}" class="flex-1 py-1.5 border rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 ${activeClasses}">
+                            <i class="fa-solid fa-glass-water ${iconSize}"></i>
+                            <span class="font-bold text-xs">${label}</span>
+                        </button>`;
+                    }).join('');
+                    
+                    selectHtml = `<div class="flex gap-2 mb-3 mt-2">${buttonsHtml}</div>`;
+                } else {
+                    priceHtml = `<span class="font-bold text-pollos-red">${formatRupiah(product.price)}</span>`;
+                }
+
+                const card = `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+                        <img src="${product.img}" alt="${product.name}" class="w-full h-40 object-cover">
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h4 class="font-bold text-lg text-pollos-dark mb-1 leading-tight">${product.name}</h4>
+                            <p class="text-sm text-gray-500 mb-2 flex-grow">${product.desc}</p>
+                            ${selectHtml}
+                            <div class="flex justify-between items-center mt-auto pt-3 border-t border-gray-50">
+                                ${priceHtml}
+                                <button onclick="addToCart(${product.id})" class="bg-pollos-yellow hover:bg-yellow-500 text-pollos-dark px-3 py-1.5 rounded-lg text-sm font-bold transition whitespace-nowrap ml-2">
+                                    + Tambah
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productList.innerHTML += card;
+            });
+        }
+
+        // Fungsi ketika tombol ukuran diklik
+        function selectSize(productId, sizeIndex) {
+            const product = products.find(p => p.id === productId);
+            if (!product || !product.sizes) return;
+
+            // Update state
+            selectedSizes[productId] = sizeIndex;
+
+            // Update tampilan harga
+            document.getElementById(`price-display-${productId}`).innerText = formatRupiah(product.sizes[sizeIndex].price);
+
+            // Update gaya tombol (aktif/non-aktif)
+            product.sizes.forEach((_, idx) => {
+                const btn = document.getElementById(`btn-size-${productId}-${idx}`);
+                if (idx === sizeIndex) {
+                    btn.className = `flex-1 py-1.5 border rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 bg-pollos-red text-white border-pollos-red shadow-md`;
+                } else {
+                    btn.className = `flex-1 py-1.5 border rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 bg-white text-gray-500 border-gray-200 hover:bg-gray-50`;
+                }
+            });
+        }
+
+        // 5. Tambah Item ke Keranjang
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            let cartItemToAdd = null;
+
+            // Jika produk punya opsi ukuran, gunakan state selectedSizes
+            if (product.sizes) {
+                const sizeIndex = selectedSizes[productId];
+                const selectedSize = product.sizes[sizeIndex];
+                
+                cartItemToAdd = {
+                    cartId: `${product.id}-${sizeIndex}`,
+                    name: `${product.name} (${selectedSize.name})`,
+                    price: selectedSize.price,
+                    productId: product.id
+                };
+            } else {
+                cartItemToAdd = {
+                    cartId: `${product.id}`,
+                    name: product.name,
+                    price: product.price,
+                    productId: product.id
+                };
+            }
+
+            const cartItem = cart.find(item => item.cartId === cartItemToAdd.cartId);
+
+            if (cartItem) {
+                cartItem.quantity += 1;
+            } else {
+                cart.push({ ...cartItemToAdd, quantity: 1 });
+            }
+
+            updateCartUI();
+            
+            // Animasi Notifikasi Angka di Keranjang
+            const badge = document.getElementById('cart-badge');
+            badge.classList.add('scale-125');
+            setTimeout(() => badge.classList.remove('scale-125'), 150);
+        }
+
+        // 6. Ubah Jumlah Item (+/-)
+        function changeQuantity(cartId, amount) {
+            const cartItem = cart.find(item => item.cartId === cartId);
+            if (cartItem) {
+                cartItem.quantity += amount;
+                if (cartItem.quantity <= 0) {
+                    // Hapus jika kuantitas 0
+                    cart = cart.filter(item => item.cartId !== cartId);
+                }
+            }
+            updateCartUI();
+        }
+
+        // 7. Update Tampilan Keranjang
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cart-items');
+            const emptyMsg = document.getElementById('empty-cart-msg');
+            const badge = document.getElementById('cart-badge');
+            const totalEl = document.getElementById('cart-total');
+            const btnCheckout = document.getElementById('checkout-btn');
+
+            let totalQty = 0;
+            let totalPrice = 0;
+            cartContainer.innerHTML = ''; 
+
+            if (cart.length === 0) {
+                emptyMsg.style.display = 'block';
+                badge.classList.add('hidden');
+                btnCheckout.disabled = true;
+            } else {
+                emptyMsg.style.display = 'none';
+                badge.classList.remove('hidden');
+                btnCheckout.disabled = false;
+
+                cart.forEach(item => {
+                    totalQty += item.quantity;
+                    totalPrice += (item.price * item.quantity);
+
+                    const itemHtml = document.createElement('div');
+                    itemHtml.className = "flex justify-between items-center bg-white p-3 rounded-lg border border-gray-100 shadow-sm";
+                    itemHtml.innerHTML = `
+                        <div class="flex-grow pr-2">
+                            <h5 class="font-bold text-sm text-pollos-dark leading-tight">${item.name}</h5>
+                            <span class="text-pollos-red text-xs font-semibold">${formatRupiah(item.price)}/item</span>
+                        </div>
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <button onclick="changeQuantity('${item.cartId}', -1)" class="w-6 h-6 flex items-center justify-center text-gray-600 hover:bg-white rounded shadow-sm transition"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                            <span class="font-bold text-sm w-6 text-center">${item.quantity}</span>
+                            <button onclick="changeQuantity('${item.cartId}', 1)" class="w-6 h-6 flex items-center justify-center text-gray-600 hover:bg-white rounded shadow-sm transition"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                        </div>
+                    `;
+                    cartContainer.appendChild(itemHtml);
+                });
+            }
+
+            badge.innerText = totalQty;
+            totalEl.innerText = formatRupiah(totalPrice);
+        }
+
+        // 8. Buka/Tutup Sidebar
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // 9. Format dan Kirim ke WhatsApp
+        function checkoutWhatsApp() {
+            if (cart.length === 0) return;
+
+            // GANTI DENGAN NOMOR WA KELOMPOK/TOKO (Gunakan 62...)
+            const phoneNumber = "62895626653093"; 
+            
+            let message = "*PESANAN BARU - LOS POLLOS HERMANOS*\n\n";
+            let grandTotal = 0;
+
+            message += "Daftar Pesanan:\n";
+            cart.forEach((item, index) => {
+                const subTotal = item.price * item.quantity;
+                grandTotal += subTotal;
+                message += `${index + 1}. ${item.name}\n`;
+                message += `   ${item.quantity} x ${formatRupiah(item.price)} = *${formatRupiah(subTotal)}*\n\n`;
+            });
+
+            message += `--------------------------\n`;
+            message += `*TOTAL TAGIHAN: ${formatRupiah(grandTotal)}*\n`;
+            message += `--------------------------\n\n`;
+            message += "Mohon diproses pesanan saya. Terima kasih!";
+
+            const encodedMessage = encodeURIComponent(message);
+            const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            window.open(waUrl, '_blank');
+        }
+
+        // Jalankan saat halaman siap
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
